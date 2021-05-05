@@ -40,7 +40,7 @@ Al iniciar sesión seguir los siguientes pasos:
 
 Los siguientes datos a modificar se encuentran en ***src/test/java/com/cdc/apihub/mx/FintechScore/test/ApiTest.java***
 
-Es importante contar con el setUp() que se encargará de inicializar la petición. Por tanto, se debe modificar la URL (**urlApi**); y la API KEY (**xApiKey**), como se muestra en el siguiente fragmento de código:
+Es importante contar con el setUp() que se encargará de inicializar la petición. Por tanto, se debe modificar la URL (**the_url**); y la API KEY (**your_api_key**), como se muestra en el siguiente fragmento de código:
 
 ```java
 @Before()
