@@ -1,6 +1,6 @@
-# rcc-pm-simulacion-client-java [![GitHub Packages](https://img.shields.io/badge/Maven&nbsp;package-Last&nbsp;version-lemon)](https://github.com/orgs/APIHub-CdC/packages?repo_name=rcc-pm-simulacion-client-java) 
+# fintechscore-simulacion-client-java [![GitHub Packages](https://img.shields.io/badge/Maven&nbsp;package-Last&nbsp;version-lemon)](https://github.com/orgs/APIHub-CdC/packages?repo_name=fintechscore-simulacion-client-java) 
 
-Esta API simula el Reporte de Crédito Consolidado de Persona Moral.
+Esta API simula la evaluación de riesgo cubriendo las necesidades de las FinTechs como los son: plazos más cortos que van de 1 día hasta 3 meses en promedio, montos de $3.5K promedio, renovaciones con mayor frecuencia, mayores tasas de interés y disponibilidad inmediata.
 
 ## Requisitos
 
@@ -38,7 +38,7 @@ Al iniciar sesión seguir los siguientes pasos:
 
 ### Paso 2. Capturar los datos de la petición
 
-Los siguientes datos a modificar se encuentran en ***src/test/java/com/cdc/apihub/mx/RCCPM/test/ApiTest.java***
+Los siguientes datos a modificar se encuentran en ***src/test/java/com/cdc/apihub/mx/FintechScore/test/ApiTest.java***
 
 Es importante contar con el setUp() que se encargará de inicializar la petición. Por tanto, se debe modificar la URL (**urlApi**); y la API KEY (**xApiKey**), como se muestra en el siguiente fragmento de código:
 
@@ -57,47 +57,51 @@ La petición se deberá modificar el siguiente fragmento de código con los dato
 
 ```java
 @Test
-public void getReporteCreditoPMTest() throws ApiException {
-
-    PersonaPeticion request = new PersonaPeticion();
+public void getReporteTest() throws ApiException {
+    
+    Peticion body = new Peticion();
     Persona persona = new Persona();
-    PersonaDomicilio domicilio = new PersonaDomicilio();
+    Domicilio domicilio = new Domicilio();
     
     Integer estatusOK = 200;
     Integer estatusNoContent = 204;
     
     try {
         
-        domicilio.setDireccion("AV. PASEO DE LA REFORMA 01");
-        domicilio.setColoniaPoblacion("GUERRERO");
-        domicilio.setDelegacionMunicipio("CUAUHTEMOC");
-        domicilio.setCiudad("CIUDAD DE MÉXICO");
-        domicilio.setEstado(CatalogoEstados.DF);
-        domicilio.setCP("68370");
+        domicilio.setDireccion("AV 535 84");
+        domicilio.setCiudad( "CIUDAD DE MEXICO");
+        domicilio.setColoniaPoblacion("SAN JUAN DE ARAGON 1RA SECC");
+        domicilio.setDelegacionMunicipio("GUSTAVO A MADERO");
+        domicilio.setCP("07969");
+        domicilio.setEstado(CatalogoEstados.CDMX);
         domicilio.setPais(CatalogoPais.MX);
-
-        persona.setRFC("EDC930121E01");
-        persona.setNombre("RESTAURANTE SA DE CV");
-        persona.setDomicilio(domicilio);
-
-        request.setFolioOtorgante("1000001");
-        request.setPersona(persona);
         
-        ApiResponse<?> response = api.getgenericReporteCreditoPM(xApiKey, request);
-
+        persona.setPrimerNombre("PABLO");
+        persona.setSegundoNombre("ANTONIO");
+        persona.setApellidoPaterno("PRUEBA");
+        persona.setApellidoMaterno("ALVAREZ");
+        persona.setFechaNacimiento("1985-03-16");
+        persona.setRFC("PUAP850316MI1");
+        persona.setDomicilio(domicilio);
+        
+        body.setFolioOtorgante("20210307");
+        body.setPersona(persona);
+        
+        ApiResponse<?>  response = api.getGenericReporte(this.xApiKey, body);
+        
         Assert.assertTrue(estatusOK.equals(response.getStatusCode()));
         
         if(estatusOK.equals(response.getStatusCode())) {
-            ReporteRespuesta responseOK = (ReporteRespuesta) response.getData();
-            logger.info("RCC-PM Test: "+responseOK.toString());
+            Respuesta responseOK = (Respuesta) response.getData();
+            logger.info(responseOK.toString());
         }
-        
-    }catch (ApiException e) {
+
+    } catch (ApiException e) {
         if(!estatusNoContent.equals(e.getCode())) {
-            logger.info("Error getReporteCreditoPMTest: "+e.getResponseBody());
+            logger.info(e.getResponseBody());
         }
-        Assert.assertTrue(estatusOK.equals(e.getCode()));
-    }        
+        Assert.assertTrue(estatusOK.equals(e.getCode()));           
+    }
 }
 ```
 
@@ -108,3 +112,6 @@ Teniendo los pasos anteriores ya solo falta ejecutar la prueba unitaria, con el 
 ```shell
 mvn test -Dmaven.install.skip=true
 ```
+
+---
+[TERMS AND CONDITIONS](https://github.com/APIHub-CdC/licencias-cdc)
