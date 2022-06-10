@@ -43,68 +43,74 @@ Los siguientes datos a modificar se encuentran en ***src/test/java/com/cdc/apihu
 Es importante contar con el setUp() que se encargará de inicializar la petición. Por tanto, se debe modificar la URL (**the_url**); y la API KEY (**your_api_key**), como se muestra en el siguiente fragmento de código:
 
 ```java
-@Before()
-public void setUp() {
-    this.xApiKey = "your_api_key";
-    this.apiClient = api.getApiClient();
-    this.apiClient.setBasePath("the_url");
-}
+private final FintechScoreApi api = new FintechScoreApi();
+    
+    private ApiClient apiClient;
+    private String xApiKey = "your-apikey";
+    private String url = "url";
+    
+    @Before()
+    public void setUp() {
+    	 
+		this.apiClient = api.getApiClient();
+        this.apiClient.setBasePath(url);
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+               .readTimeout(30, TimeUnit.SECONDS)
+               .build();
+        apiClient.setHttpClient(okHttpClient);
+    }
 ```
 
 La petición se deberá modificar el siguiente fragmento de código con los datos correspondientes:
 
 > **NOTA:** Para más ejemplos de simulación, consulte la colección de Postman.
+### Método con datos del solicitante
 
 ```java
-@Test
-public void getReporteTest() throws ApiException {
-    
-    Peticion body = new Peticion();
-    Persona persona = new Persona();
-    Domicilio domicilio = new Domicilio();
-    
-    Integer estatusOK = 200;
-    Integer estatusNoContent = 204;
-    
-    try {
-        
-        domicilio.setDireccion("AV 535 84");
-        domicilio.setCiudad( "CIUDAD DE MEXICO");
-        domicilio.setColoniaPoblacion("SAN JUAN DE ARAGON 1RA SECC");
-        domicilio.setDelegacionMunicipio("GUSTAVO A MADERO");
-        domicilio.setCP("07969");
+ @Test
+    public void getReporteTest() throws Exception {
+    	Peticion request = new Peticion();
+    	request.setFolioOtorgante("20210304");
+    	
+        Persona persona = new Persona();
+        Domicilio domicilio = new Domicilio();
+        domicilio.setDireccion("INGENIEROS MILITARES NO. 65");
+        domicilio.setColoniaPoblacion("LOMAS DE SOTELO");
+        domicilio.setDelegacionMunicipio("MIGUEL HIDALGO");
+        domicilio.setCiudad("CIUDAD DE MÉXICO");
         domicilio.setEstado(CatalogoEstados.CDMX);
+        domicilio.setCP("11200");
         domicilio.setPais(CatalogoPais.MX);
-        
-        persona.setPrimerNombre("PABLO");
-        persona.setSegundoNombre("ANTONIO");
         persona.setApellidoPaterno("PRUEBA");
-        persona.setApellidoMaterno("ALVAREZ");
-        persona.setFechaNacimiento("1985-03-16");
-        persona.setRFC("PUAP850316MI1");
+        persona.setApellidoMaterno("RUIZ");
+        persona.setPrimerNombre("JUAN");
+        persona.setSegundoNombre("PABLO");
+        persona.setFechaNacimiento("1974-10-28");
+        persona.setRFC("PURJ741028PL2");
         persona.setDomicilio(domicilio);
-        
-        body.setFolioOtorgante("20210307");
-        body.setPersona(persona);
-        
-        ApiResponse<?>  response = api.getGenericReporte(this.xApiKey, body);
-        
-        Assert.assertTrue(estatusOK.equals(response.getStatusCode()));
-        
-        if(estatusOK.equals(response.getStatusCode())) {
-            Respuesta responseOK = (Respuesta) response.getData();
-            logger.info(responseOK.toString());
-        }
-
-    } catch (ApiException e) {
-        if(!estatusNoContent.equals(e.getCode())) {
-            logger.info(e.getResponseBody());
-        }
-        Assert.assertTrue(estatusOK.equals(e.getCode()));           
+    	request.setPersona(persona);
+    	
+        Respuesta response = api.getReporte(this.xApiKey, request);
+        logger.info("Report: "+response.toString());
+        Assert.assertTrue(response.getFolioConsulta() != null);
     }
-}
 ```
+### Método con folios del solicitante
 
+```java
+ @Test
+    public void getReporteFolio() throws Exception {
+    	PeticionFolio request = new PeticionFolio();
+ 
+    	request.setFolioOtorgante("20210301");
+    	request.setFolioConsulta("12345678");
+        
+        Respuesta response = api.getReporteFolio(this.xApiKey, request);
+        logger.info("Report Folio: "+response.toString());
+        
+        Assert.assertTrue(response.getFolioConsulta() != null);
+    }
+```
 ### Paso 3. Ejecutar la prueba unitaria
 
 Teniendo los pasos anteriores ya solo falta ejecutar la prueba unitaria, con el siguiente comando:
